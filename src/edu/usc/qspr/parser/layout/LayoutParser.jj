@@ -1,0 +1,210 @@
+/*
+ * 
+ * Copyright (C) 2014 Mohammad Javad Dousti and Massoud Pedram, University of Southern California.
+ * All rights reserved.
+ * 
+ * Please refer to the LICENSE file for terms of use.
+ * 
+*/
+options
+{
+  IGNORE_CASE = true;
+  JDK_VERSION = "1.5";
+  static = true;
+}
+
+PARSER_BEGIN(LayoutParser)
+package edu.usc.qspr.parser.layout;
+import java.io.*;
+import java.util.*;
+import java.util.List;
+import java.util.regex.*;
+import java.awt.*;
+import edu.usc.qspr.layout.*;
+import edu.usc.qspr.RuntimeConfig;
+
+public class LayoutParser
+{
+	static Layout layout;
+	static List<Operation> ll=new Vector<Operation>();
+
+	 public static Layout LayoutParser(String addr){
+		LayoutParser ld;
+		try
+		{
+			ld=new LayoutParser(new java.io.FileInputStream(addr));
+			ld.start();			
+		}catch (ParseException e) {
+			System.err.println(e.getLocalizedMessage());
+			return null;
+		}catch (IOException e) {
+			System.err.println("Layout file not found!");
+			return null;
+		}
+		layout.fixFabricSquares();
+		layout.makeGraph();
+		//Prints the quantum fabric
+    	if (RuntimeConfig.DEBUG){    	  	layout.printFabric();
+		}
+		if (RuntimeConfig.VERBOSE){
+			System.out.println("Layout parsing completed successfully!");
+		}
+		return layout;
+	}
+}
+
+PARSER_END(LayoutParser)
+
+< * >SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+|  <"#" (~["\n","\r"])* ("\n" | "\r" | "\r\n")?>
+}
+
+//Defining "IN_FABRIC_SIZE" state, to distinguish between "x" with the operator "X"
+<IN_FABRIC_SIZE> TOKEN : {
+  <  X : "x" >
+| < QUBITS : "qubits" > : DEFAULT
+}
+
+TOKEN : {
+  < SIZE : "size" >  : IN_FABRIC_SIZE
+| < TYPE : "type" >
+| < SQUARE: "square" >
+| < JUNCTION: "junction" >
+| < TRAP: "trap" >
+| < CHANNEL : "channel" >
+| < OPERATION : "operation" >
+| < MOVE : "move" >
+| < RANGE : "range" >
+| < LOCATION : "location" >
+| < END: "END" >
+| < CORNER: "corner" >
+| < CORNER_TYPE: "ES"|"SW"|"WN"|"NE" >
+| < TEE: "tee" >
+| < TEE_TYPE: "E"|"N"|"S"|"W" >
+| < CROSS: "cross" >
+| < COMMANDS: (< LETTER >)(< LETTER >|"-")*>
+| < #LETTER : (["a"-"z","A"-"Z"])>
+}
+
+< * >TOKEN: {
+< INTEGER : (< DIGIT >)+ >
+| < FLOAT : (< DIGIT >)+"."(< DIGIT >)+("e"("+"|"-")?(< DIGIT >)+)? >
+| < #DIGIT : [ "0"-"9" ] >
+| < OCB : "{" >
+| < OB : "[" >
+| < CCB : "}" >
+| < CB : "]" >
+| < COMMA: "," >
+| < COLON: ":" >
+}
+
+      
+//MAIN UNIT
+public void start() : { }
+{
+	initInfo()
+	techInfo()
+	(square())+	
+	< END >
+	<EOF >
+}
+
+	
+public void initInfo() : {
+  Token height, width,z;}
+{
+	< SIZE >height=<INTEGER><X>width=<INTEGER>< QUBITS >z=<INTEGER >
+	{
+		//Dimension(width, height)
+		layout=new Layout(new Dimension(Integer.parseInt(width.image), Integer.parseInt(height.image)), Integer.parseInt(z.image));
+	}
+}
+
+public void techInfo() : {
+  Token x, y,z;}
+{
+	< OPERATION><OCB >
+	< MOVE ><COMMA >y=<FLOAT ><COMMA >z=<INTEGER >
+	{
+		layout.setMoveInfo(Double.parseDouble(y.image), Integer.parseInt(z.image));
+	}
+	(
+	x=< COMMANDS ><COMMA >y=<FLOAT ><COMMA >z=<INTEGER >
+	{
+		//Maintains the list of supported command in the layout
+		layout.addNewOperation (new Operation(x.image.toUpperCase(), Double.parseDouble(y.image), Integer.parseInt(z.image)));
+	}
+	)+
+	< CCB >
+}
+
+
+public void square() : {}
+{
+	< SQUARE><OCB >
+	(
+		<TYPE> ((< CHANNEL > (range(Layout.Types.Channel))+ )|(< TRAP > supportedTrapOps()(range(Layout.Types.Trap))+)| (< JUNCTION >junction()))
+	)
+	< CCB >
+}
+
+
+public void junction() : {}
+{
+  ((< CORNER ><CORNER_TYPE>)|< CROSS >|(< TEE ><TEE_TYPE >))
+  (location())+
+  (<TYPE><JUNCTION >junction())?
+}
+
+public void supportedTrapOps() : {
+  Token x;
+	}
+{
+	//TODO:
+	< OPERATION > x=< COMMANDS >
+	{
+		ll.clear();
+		ll.add(layout.returnOperation(x.image));
+	}
+	(< COMMA >x=< COMMANDS >
+	{
+		if (layout.returnOperation(x.image)==null)
+		{
+		  System.err.println("Unsupported operation "+x.image+".");
+		}
+		else
+			ll.add(layout.returnOperation(x.image));
+	}
+	)*
+}
+
+
+public void range(Layout.Types sq) : {
+  Token h1, w1, h2, w2, step;}
+{
+	< RANGE ><OB > h1=<INTEGER > <COMMA>w1=<INTEGER > <COLON > h2=<INTEGER > <COMMA>w2=<INTEGER > <COLON > step=<INTEGER ><CB >
+	{
+	  	layout.addSquares(sq, Integer.parseInt(h1.image), Integer.parseInt(w1.image),
+	  							Integer.parseInt(h2.image), Integer.parseInt(w2.image),
+	  							Integer.parseInt(step.image));
+//		if (sq==Layout.Types.Trap)
+//		{
+//		  new Trap(
+//		}
+	}
+}
+//Just used for Junctions
+public void location() : {
+  Token height, width;}
+{
+	< LOCATION > height=<INTEGER ><COMMA >width=<INTEGER >
+	{
+	  layout.addJunction(Integer.parseInt(height.image), Integer.parseInt(width.image));	    
+	}
+}
+
