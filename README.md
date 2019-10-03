@@ -1,21 +1,10 @@
-				Quantum Scheduler, Placer, and Router (QSPR)
-				********************************************
-Description:
-***************
+# QSPR: Quantum Scheduler, Placer, and Router
+
+## Description
 Quantum Scheduler, Placer, and Router (QSPR) performs the scheduling and placement of quantum instructions, and routing of logical qubits. It finds the latency of a given QASM file when it is mapped to a given quantum circuit fabric.
 
-Change Log:
-***************
-Version	|   Change
--------------------------------------------------------------------------------------------
-1.00	|   Initial release.
-
-License:
-***********
-Please refer to the LICENSE file.
-
-Directories & File Structure:
-*****************************
+## Directories & File Structure
+```
 QSPR
 |-- build.xml -> Ant build file
 |-- qspr.pdf -> QSPR paper published in DATE 2013
@@ -32,72 +21,82 @@ QSPR
       |-- jgrapht-core-0.9.0.jar -> JGraphT library
 |-- qspr-prebuilt.jar -> Pre-built version of QSPR
 `-- README -> This readme file.
+```
 
-Requirements:
-***************
-1. Ant 1.7 or higher (http://ant.apache.org) or Eclipse 3.8 or higher (https://www.eclipse.org)
-2. Oracle Java 6-JDK or higher (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+## Requirements
+1. [Ant 1.7](http://ant.apache.org) or higher or [Eclipse 3.8](https://www.eclipse.org) or higher
+2. [Oracle Java 6-JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) or higher
 
 
-Preinstall:
-***************
+## Preinstall
+
 Make sure that all the requirements are already installed. The following environmental variable should be set before the installation/running of the program.
-    * JAVA_HOME should point where java and javac binary files are located.
+* `JAVA_HOME` should point where `java` and `javac` binary files are located.
 
 
-Compile:
-***************
-Method 1: Run the following command in the root directory of the project to build QSPR:
-    ant
+## Compile
+
+**Method 1:** Run the following command in the root directory of the project to build QSPR:
+```
+ant
+```
 
 This command will clean the built files:
-    ant clean
+```
+ant clean
+```
 
-Method 2: You may use Eclipse to import source files as explained next.
-  - Select File->Import.
-  - Select General->Existing Projects into Workspace and choose Next.
-  - In the root directory, point to the location of Java source files.
-  - Select Finish.
-  - Make sure JavaCC plugin is installed in Eclipse.
+**Method 2:** You may use Eclipse to import source files as explained next.
+*  Select `File->Import`.
+* Select `General->Existing Projects` into `Workspace` and choose `Next`.
+* In the root directory, point to the location of Java source files.
+* Select `Finish`.
+* Make sure `JavaCC` plugin is installed in Eclipse.
 
-Note: We have included a pre-built version of QSPR called qspr-prebuilt.jar. It is recommended to use it if you do not want to modify QSPR.
+**Note:** We have included a pre-built version of QSPR called `qspr-prebuilt.jar`. It is recommended to use it if you do not want to modify QSPR.
 
-Run:
-***************
+## Run
 Run the following command to perform the scheduling and placement of quantum logical instructions, and routing of logical qubits.
-    java -jar qspr.jar
+```
+java -jar qspr.jar
+```
 
 QSPR options are listed below:
-	
-    usage: qspr [-d] [-f <file>] [-i <file>] [-o <file>] [-p <method>] [-s <#>] [-v]
- 
-    QSPR maps a given QASM to a given PMD fabric. The resultant MCL file of the mapped circuit will be generated.
-    -d,--debug                Print debugging info
-    -f,--fabric <file>        Fabric specification
-    -i,--input <file>         QASM input file
-    -o,--output <file>        Quantum operation output file
-    -p,--placement <method>   Select a placement technique from {MVFB, MC, Center, and Baseline}.
-    -s,--seed <#>             Random seed count
-    -v,--verbose              Verbosely prints the quantum operations
+```	
+usage: qspr [-d] [-f <file>] [-i <file>] [-o <file>] [-p <method>] [-s <#>] [-v]
 
-Examples:
-***************
-1- The following command maps circuit 7-1-3.qasm  to the fabric “fabric.ql”. It writes the detailed MCL to a file called “output.txt”. The “baseline” method will be used for placement.
-    java -jar qspr.jar -i sample_inputs/7-1-3.qasm -f sample_inputs/fabric.ql -o output.txt -p baseline -v
+QSPR maps a given QASM to a given PMD fabric. The resultant MCL file of the mapped circuit will be generated.
+-d,--debug                Print debugging info
+-f,--fabric <file>        Fabric specification
+-i,--input <file>         QASM input file
+-o,--output <file>        Quantum operation output file
+-p,--placement <method>   Select a placement technique from {MVFB, MC, Center, and Baseline}.
+-s,--seed <#>             Random seed count
+-v,--verbose              Verbosely prints the quantum operations
+```
 
-2- The following command maps circuit “5-1-3.qasm” to the fabric “fabric.ql”. It writes the detailed MCL to stdout. The “MVFB” method with seed 2 will be used for placement.
-    java -jar qspr.jar -i sample_inputs/5-1-3.qasm -f sample_inputs/fabric.ql -p mvfb -v -s 2
+### Examples
+1. The following command maps `circuit 7-1-3.qasm` to the fabric `fabric.ql`. It writes the detailed MCL to a file called `output.txt`. The `baseline` method will be used for placement.
+```
+java -jar qspr.jar -i sample_inputs/7-1-3.qasm -f sample_inputs/fabric.ql -o output.txt -p baseline -v
+```
 
-Example Outputs:
-***************
-- Example 1 output:
+2. The following command maps circuit `5-1-3.qasm` to the fabric `fabric.ql`. It writes the detailed MCL to stdout. The `MVFB` method with seed 2 will be used for placement.
+```
+java -jar qspr.jar -i sample_inputs/5-1-3.qasm -f sample_inputs/fabric.ql -p mvfb -v -s 2
+```
+
+### Example Outputs
+Example 1 output:
+```
 Layout parsing completed successfully!
 QASM parsing completed successfully!
 Scheduling is completed succesfully!
 Done.
+```
 
-
-Content of “output.txt”:
+Content of `output.txt`:
+```
 SimTime:10	1) h q0	2) h q1	3) h q2	
 SimTime:100	4) cnot q5, q3	
 SimTime:110	6) cnot q4, q2	
@@ -109,8 +108,10 @@ SimTime:510	13) cnot q4, q0
 ------------------------------------
 Execution latency: 510.0 us
 QSPR runtime 74 ms
+```
 
-- Example 2 output
+Example 2 output:
+```
 Layout parsing completed successfully!
 QASM parsing completed successfully!
 
@@ -1108,17 +1109,17 @@ MVBF total iteration count: 14
 Execution latency: 650.0 us
 QSPR runtime 170 ms
 Done.
+```
 
-Developers
-***********
-Mohammad Javad Dousti <dousti@usc.edu>
-Massoud Pedram <pedram@usc.edu>
+## Developers
+* [Mohammad Javad Dousti](<dousti@usc.edu>)
+* [Massoud Pedram](<pedram@usc.edu>)
 
 
-Questions or Bugs?
-***********
-You may contact Mohammad Javad Dousti <dousti@usc.edu> for any questions you may have or bugs that you find.
+## Questions or Bugs?
+You may contact [Mohammad Javad Dousti](<dousti@usc.edu>) for any questions you may have or bugs that you find.
 
-Site
-***********
-http://atrak.usc.edu/~dousti/downloads/qspr/
+## License
+Please refer to the [LICENSE](LICENSE) file.
+
+
