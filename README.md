@@ -47,7 +47,7 @@ ant clean
 ```
 
 **Method 2:** You may use Eclipse to import source files as explained next.
-*  Select `File->Import`.
+* Select `File->Import`.
 * Select `General->Existing Projects` into `Workspace` and choose `Next`.
 * In the root directory, point to the location of Java source files.
 * Select `Finish`.
@@ -1112,14 +1112,12 @@ Done.
 ```
 
 ## Developers
-* [Mohammad Javad Dousti](<dousti@usc.edu>)
-* [Massoud Pedram](<pedram@usc.edu>)
+* Mohammad Javad Dousti (<dousti@usc.edu>)
+* Massoud Pedram (<pedram@usc.edu>)
 
 
 ## Questions or Bugs?
-You may contact [Mohammad Javad Dousti](<dousti@usc.edu>) for any questions you may have or bugs that you find.
+You may contact Mohammad Javad Dousti (<dousti@usc.edu>) for any questions you may have or bugs that you find.
 
 ## License
 Please refer to the [LICENSE](LICENSE) file.
-
-
